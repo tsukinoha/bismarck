@@ -18,7 +18,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/elfincafe/mmaco"
+	"github.com/elfincafe/bismarck"
 )
 
 type (
@@ -31,7 +31,7 @@ func (b *Build) Init() {
 	println("Initialize")
 }
 
-func (b *Build) Run(ctx *mmaco.Context) error {
+func (b *Build) Run(ctx *bismarck.Context) error {
 	fmt.Printf("Optimize level: %d", b.Optimize)
 	return nil
 }
@@ -50,10 +50,10 @@ Optimize level: 2
 ```
 # Usage
 ## Sub Command
-The requirements for a structure to be registered as a subcommand are simple: it must implement the mmaco.SubCommand interface. That’s all there is to it.
-The mmaco.SubCommand interface requires the implementation of the following two functions:
+The requirements for a structure to be registered as a subcommand are simple: it must implement the bismarck.SubCommand interface. That’s all there is to it.
+The bismarck.SubCommand interface requires the implementation of the following two functions:
 * Init()
-* Run(*mmaco.Context) error
+* Run(*bismarck.Context) error
 ## Options
 Subcommands allow you to declaratively define options by using tags on fields of structures that implement the SubCommand interface.
 The types of fields that can be used as options are as follows:
@@ -83,7 +83,7 @@ The following items can be configured using tags.
 |format|format for time.Time. [time package format](https://pkg.go.dev/time#pkg-constants) or custom layouts (e.g. 2006/01/02)|
 ```go
 Build struct {
-  Label string `mmaco:"short=l,long=label,desc=display name,required"`
-  Today time.Time `mmaco:"short=t,desc=today,format=RFC3339"`
+  Label string `bismarck:"short=l,long=label,desc=display name,required"`
+  Today time.Time `bismarck:"short=t,desc=today,format=RFC3339"`
 }
 ```

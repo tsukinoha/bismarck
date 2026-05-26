@@ -22,7 +22,7 @@ type (
 )
 
 func New(name string) *Command {
-	// Rules (defined in mmaco.go)
+	// Rules (defined in bismarck.go)
 	ruleShortOpt = regexp.MustCompile(`^[\da-zA-Z]$`)
 	ruleLongOpt = regexp.MustCompile(`^[\da-zA-Z][\w\-]{0,13}[\da-zA-Z]$`)
 
