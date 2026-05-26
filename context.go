@@ -1,4 +1,4 @@
-package mmaco
+package bismarck
 
 import "time"
 

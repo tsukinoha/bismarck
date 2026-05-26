@@ -1,16 +1,16 @@
-# mmaCo
+# Bismarck
 
-mmaCo is a framework for command-line interfaces. If you're building systems in Go, we believe it's a very useful option. By using mmaCo, you can easily create a subcommand-based CLI.
+Bismarck is a framework for command-line interfaces. If you're building systems in Go, we believe it's a very useful option. By using Bismarck, you can easily create a subcommand-based CLI.
 
-mmaCo has the following features:
+Bismarck has the following features:
 * Simple: With limited functionality, it requires minimal learning effort.
 * Fast: Processing is fast and does not slow down execution.
 * Help: Automatically generates help sub command.
 
-We hope you have a wonderful development experience with mmaCo.
+We hope you have a wonderful development experience with Bismarck.
 
 # Quick Start
-You just add structures that implement the SubCommand interface to the mmaCo structure. You can automatically retrieve subcommand options by declaring them as tagged fields in the structure.
+You just add structures that implement the SubCommand interface to the Bismarck structure. You can automatically retrieve subcommand options by declaring them as tagged fields in the structure.
 In the following example, we are creating the `build` command as a subcommand. We have configured it so that the optimization level can be specified as an option for the subcommand.
 ```go
 package main
@@ -23,7 +23,7 @@ import (
 
 type (
 	Build struct {
-		Optimize int `mmaco:"short:o,long=optimize,desc=optimize level,required"`
+		Optimize int `bismarck:"short:o,long=optimize,desc=optimize level,required"`
 	}
 )
 
@@ -37,7 +37,7 @@ func (b *Build) Run(ctx *mmaco.Context) error {
 }
 
 func main() {
-	cmd := mmaco.New("sample")
+	cmd := bismarck.New("sample")
 	cmd.Add(&Build{}, "build", "build the binary from the source files.")
 	cmd.Run()
 }

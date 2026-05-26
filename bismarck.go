@@ -1,4 +1,4 @@
-package mmaco
+package bismarck
 
 import (
 	"fmt"
@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	tagName     = "mmaco"
+	tagName     = "bismarck"
+	tagAlias    = "bsmk"
 	helpCmdName = "help"
 	trimSpace   = " \t\v\r\n\f"
 

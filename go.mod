@@ -1,4 +1,4 @@
-module github.com/elfincafe/mmaco
+module github.com/elfincafe/bismarck
 
 go 1.20.0
 

@@ -1,4 +1,4 @@
-package mmaco
+package bismarck
 
 import (
 	"fmt"
@@ -42,7 +42,10 @@ func (sc SubCommandBucket) parse() {
 		}
 		tag := ft.Tag.Get(tagName)
 		if tag == "" {
-			continue
+			tag = ft.Tag.Get(tagAlias)
+			if tag == "" {
+				continue
+			}
 		}
 		opt := newOption(f, ft, sc.ctx)
 		sc.ctx.subCmd.opts = append(sc.ctx.subCmd.opts, opt)

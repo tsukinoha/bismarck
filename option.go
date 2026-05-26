@@ -1,4 +1,4 @@
-package mmaco
+package bismarck
 
 import (
 	"fmt"
@@ -41,7 +41,11 @@ func newOption(value reflect.Value, field reflect.StructField, ctx *Context) *op
 	o.Format = ""
 	o.Handler = ""
 
-	tags := strings.Split(o.field.Tag.Get(tagName), ",")
+	tag := o.field.Tag.Get(tagName)
+	if tag == "" {
+		tag = o.field.Tag.Get(tagAlias)
+	}
+	tags := strings.Split(tag, ",")
 	key := ""
 	for _, v := range tags {
 		t := strings.TrimLeft(v, trimSpace)

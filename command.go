@@ -1,4 +1,4 @@
-package mmaco
+package bismarck
 
 import (
 	"fmt"
@@ -15,9 +15,9 @@ type (
 		name       string
 		opts       []*option
 		subcmdRule *regexp.Regexp
-		debug      bool `mmaco:"long=debug,desc=run as debug mode"`
-		report     bool `mmaco:"long=report,desc=report when command is finished without error"`
-		help       bool `mmaco:"short=h,long=help,desc=this help"`
+		debug      bool `bismarck:"long=debug,desc=run as debug mode"`
+		report     bool `bismarck:"long=report,desc=report when command is finished without error"`
+		help       bool `bismarck:"short=h,long=help,desc=this help"`
 	}
 )
 
@@ -43,6 +43,10 @@ func (cmd *Command) SetLocation(loc *time.Location) {
 	cmd.ctx.loc = loc
 }
 
+func (cmd *Command) Use(loc *time.Location) {
+	cmd.ctx.loc = loc
+}
+
 func (cmd *Command) parse() {
 	v := reflect.ValueOf(cmd).Elem()
 	t := v.Type()
@@ -54,7 +58,10 @@ func (cmd *Command) parse() {
 		}
 		tag := ft.Tag.Get(tagName)
 		if tag == "" {
-			continue
+			tag = ft.Tag.Get(tagAlias)
+			if tag == "" {
+				continue
+			}
 		}
 		opt := newOption(f, ft, cmd.ctx)
 		cmd.opts = append(cmd.opts, opt)
