@@ -1,6 +1,9 @@
 package bismarck
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type (
 	Context struct {
@@ -9,27 +12,31 @@ type (
 		subCmds      map[string]*SubCommandBucket
 		scOrder      []string
 		loc          *time.Location
-		cmdStart     int64
-		subCmdStart  int64
-		subCmdFinish int64
+		db           *sql.Conn
+		cmdStart     time.Time
+		subCmdStart  time.Time
+		subCmdFinish time.Time
 		rawArgs      []string
 		args         []string
+		stores       map[string]any
 	}
 )
 
 func newContext(cmdName string, rawArgs []string) *Context {
-	ctx := new(Context)
-	ctx.cmd = nil
-	ctx.subCmd = nil
-	ctx.subCmds = map[string]*SubCommandBucket{}
-	ctx.scOrder = []string{}
-	ctx.loc, _ = time.LoadLocation("")
-	ctx.cmdStart = time.Now().UnixMicro()
-	ctx.subCmdStart = int64(0)
-	ctx.subCmdFinish = int64(0)
-	ctx.rawArgs = rawArgs
-	ctx.args = []string{}
-	return ctx
+	loc, _ := time.LoadLocation("UTC")
+	return &Context{
+		cmd:          nil,
+		subCmd:       nil,
+		subCmds:      map[string]*SubCommandBucket{},
+		scOrder:      []string{},
+		loc:          loc,
+		db:           nil,
+		cmdStart:     time.Now().UTC(),
+		subCmdStart:  time.Unix(0, 0),
+		subCmdFinish: time.Unix(0, 0),
+		rawArgs:      rawArgs,
+		args:         []string{},
+	}
 }
 
 func (ctx *Context) Location() *time.Location {
@@ -38,9 +45,9 @@ func (ctx *Context) Location() *time.Location {
 
 func (ctx *Context) StartTime(command bool) time.Time {
 	if command {
-		return time.UnixMicro(ctx.cmdStart)
+		return ctx.cmdStart.In(ctx.loc)
 	} else {
-		return time.UnixMicro(ctx.subCmdStart)
+		return ctx.subCmdStart.In(ctx.loc)
 	}
 }
 
@@ -70,6 +77,18 @@ func (ctx *Context) RawArgs() []string {
 	return ctx.rawArgs
 }
 
-func (ctx *Context) RawNumArg() int {
+func (ctx *Context) NumRawArg() int {
 	return len(ctx.rawArgs)
+}
+
+func (ctx *Context) Get(key string) any {
+	if v, ok := ctx.stores[key]; ok {
+		return v
+	} else {
+		return nil
+	}
+}
+
+func (ctx *Context) Set(key string, value any) {
+	ctx.stores[key] = value
 }

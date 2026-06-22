@@ -31,7 +31,9 @@ const (
 )
 
 type (
-	Kind int
+	Kind           int
+	HandlerFunc    func(ctx *Context) error
+	MiddlewareFunc func(next HandlerFunc) HandlerFunc
 )
 
 var (
