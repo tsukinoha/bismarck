@@ -41,6 +41,7 @@ func New(name string) *Command {
 }
 
 func (cmd *Command) Use(middleware MiddlewareFunc) {
+	fmt.Println("Middleware added")
 	cmd.middlewares = append(cmd.middlewares, middleware)
 }
 
@@ -149,6 +150,13 @@ func (cmd *Command) showReport(ctx *Context) {
 	println(buf.String())
 }
 
+func (cmd *Command) applyMiddleware(h HandlerFunc) HandlerFunc {
+	for i := len(cmd.middlewares) - 1; i >= 0; i-- {
+		h = cmd.middlewares[i](h)
+	}
+	return h
+}
+
 func (cmd *Command) Run() error {
 	var err error
 
@@ -199,7 +207,9 @@ func (cmd *Command) Run() error {
 
 	// Run
 	cmd.ctx.subCmdStart = time.Now().UTC()
-	err = cmd.ctx.subCmd.cmd.Run(cmd.ctx)
+	fmt.Println("Applying Middlewares")
+	h := cmd.applyMiddleware(cmd.ctx.subCmd.cmd.Run)
+	err = h(cmd.ctx)
 	cmd.ctx.subCmdFinish = time.Now().UTC()
 
 	// Report

@@ -1,6 +1,7 @@
 package bismarck
 
 import (
+	"context"
 	"database/sql"
 	"time"
 )
@@ -12,7 +13,7 @@ type (
 		subCmds      map[string]*SubCommandBucket
 		scOrder      []string
 		loc          *time.Location
-		db           *sql.Conn
+		db           *sql.DB
 		cmdStart     time.Time
 		subCmdStart  time.Time
 		subCmdFinish time.Time
@@ -41,6 +42,18 @@ func newContext(cmdName string, rawArgs []string) *Context {
 
 func (ctx *Context) Location() *time.Location {
 	return ctx.loc
+}
+
+func (ctx *Context) SetLocation(loc *time.Location) {
+	ctx.loc = loc
+}
+
+func (ctx *Context) Database() (*sql.Conn, error) {
+	return ctx.db.Conn(context.Background())
+}
+
+func (ctx *Context) SetDatabase(db *sql.DB) {
+	ctx.db = db
 }
 
 func (ctx *Context) StartTime(command bool) time.Time {

@@ -1,17 +1,22 @@
 package middleware
 
 import (
+	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/elfincafe/bismarck"
 )
 
-func Location(loc *time.Location) bismarck.MiddlewareFunc {
+type (
+	DbConfig struct {
+	}
+)
+
+func Database(db *sql.DB, config *DbConfig) bismarck.MiddlewareFunc {
 	return func(next bismarck.HandlerFunc) bismarck.HandlerFunc {
 		return func(ctx *bismarck.Context) error {
-			fmt.Println("Location Middleware Executing")
-			ctx.SetLocation(loc)
+			fmt.Println("Database Middleware Executing")
+			ctx.SetDatabase(db)
 			return next(ctx)
 		}
 	}
