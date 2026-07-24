@@ -23,7 +23,7 @@ import (
 
 type (
 	Build struct {
-		Optimize int `bismarck:"short:o,long=optimize,desc=optimize level,required"`
+		Optimize int `bismarck:"short=o,long=optimize,desc=optimize level,required"`
 	}
 )
 
