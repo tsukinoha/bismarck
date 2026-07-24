@@ -1,16 +1,16 @@
-# mmaCo
+# Bismarck
 
-mmaCo is a framework for command-line interfaces. If you're building systems in Go, we believe it's a very useful option. By using mmaCo, you can easily create a subcommand-based CLI.
+Bismarck is a framework for command-line interfaces. If you're building systems in Go, we believe it's a very useful option. By using Bismarck, you can easily create a subcommand-based CLI.
 
-mmaCo has the following features:
+Bismarck has the following features:
 * Simple: With limited functionality, it requires minimal learning effort.
 * Fast: Processing is fast and does not slow down execution.
 * Help: Automatically generates help sub command.
 
-We hope you have a wonderful development experience with mmaCo.
+We hope you have a wonderful development experience with Bismarck.
 
 # Quick Start
-You just add structures that implement the SubCommand interface to the mmaCo structure. You can automatically retrieve subcommand options by declaring them as tagged fields in the structure.
+You just add structures that implement the SubCommand interface to the Bismarck structure. You can automatically retrieve subcommand options by declaring them as tagged fields in the structure.
 In the following example, we are creating the `build` command as a subcommand. We have configured it so that the optimization level can be specified as an option for the subcommand.
 ```go
 package main
@@ -18,12 +18,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/elfincafe/mmaco"
+	"github.com/elfincafe/bismarck"
 )
 
 type (
 	Build struct {
-		Optimize int `mmaco:"short:o,long=optimize,desc=optimize level,required"`
+		Optimize int `bismarck:"short:o,long=optimize,desc=optimize level,required"`
 	}
 )
 
@@ -31,13 +31,13 @@ func (b *Build) Init() {
 	println("Initialize")
 }
 
-func (b *Build) Run(ctx *mmaco.Context) error {
+func (b *Build) Run(ctx *bismarck.Context) error {
 	fmt.Printf("Optimize level: %d", b.Optimize)
 	return nil
 }
 
 func main() {
-	cmd := mmaco.New("sample")
+	cmd := bismarck.New("sample")
 	cmd.Add(&Build{}, "build", "build the binary from the source files.")
 	cmd.Run()
 }
@@ -50,10 +50,10 @@ Optimize level: 2
 ```
 # Usage
 ## Sub Command
-The requirements for a structure to be registered as a subcommand are simple: it must implement the mmaco.SubCommand interface. That’s all there is to it.
-The mmaco.SubCommand interface requires the implementation of the following two functions:
+The requirements for a structure to be registered as a subcommand are simple: it must implement the bismarck.SubCommand interface. That’s all there is to it.
+The bismarck.SubCommand interface requires the implementation of the following two functions:
 * Init()
-* Run(*mmaco.Context) error
+* Run(*bismarck.Context) error
 ## Options
 Subcommands allow you to declaratively define options by using tags on fields of structures that implement the SubCommand interface.
 The types of fields that can be used as options are as follows:
@@ -83,7 +83,7 @@ The following items can be configured using tags.
 |format|format for time.Time. [time package format](https://pkg.go.dev/time#pkg-constants) or custom layouts (e.g. 2006/01/02)|
 ```go
 Build struct {
-  Label string `mmaco:"short=l,long=label,desc=display name,required"`
-  Today time.Time `mmaco:"short=t,desc=today,format=RFC3339"`
+  Label string `bismarck:"short=l,long=label,desc=display name,required"`
+  Today time.Time `bismarck:"short=t,desc=today,format=RFC3339"`
 }
 ```

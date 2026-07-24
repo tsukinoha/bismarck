@@ -1,4 +1,4 @@
-package mmaco
+package bismarck
 
 import (
 	"fmt"
@@ -11,36 +11,38 @@ import (
 
 type (
 	Command struct {
-		ctx        *Context
-		name       string
-		opts       []*option
-		subcmdRule *regexp.Regexp
-		debug      bool `mmaco:"long=debug,desc=run as debug mode"`
-		report     bool `mmaco:"long=report,desc=report when command is finished without error"`
-		help       bool `mmaco:"short=h,long=help,desc=this help"`
+		ctx         *Context
+		name        string
+		opts        []*option
+		subcmdRule  *regexp.Regexp
+		middlewares []MiddlewareFunc
+		debug       bool `bismarck:"long=debug,desc=run as debug mode"`
+		report      bool `bismarck:"long=report,desc=report when command is finished without error"`
+		help        bool `bismarck:"short=h,long=help,desc=this help"`
 	}
 )
 
 func New(name string) *Command {
-	// Rules (defined in mmaco.go)
+	// Rules (defined in bismarck.go)
 	ruleShortOpt = regexp.MustCompile(`^[\da-zA-Z]$`)
 	ruleLongOpt = regexp.MustCompile(`^[\da-zA-Z][\w\-]{0,13}[\da-zA-Z]$`)
 
-	ctx := newContext(name, os.Args[1:])
-	cmd := new(Command)
-	ctx.cmd = cmd
-	cmd.ctx = ctx
-	cmd.name = name
-	cmd.opts = []*option{}
-	cmd.subcmdRule = regexp.MustCompile(`^[\da-z][\da-z_\-]{0,13}[\da-z]$`)
-	cmd.debug = false
-	cmd.report = false
-	cmd.help = false
+	cmd := &Command{
+		ctx:        newContext(name, os.Args[1:]),
+		name:       name,
+		opts:       []*option{},
+		subcmdRule: regexp.MustCompile(`^[\da-z][\da-z_\-]{0,13}[\da-z]$`),
+		debug:      false,
+		report:     false,
+		help:       false,
+	}
+	cmd.ctx.cmd = cmd
 	return cmd
 }
 
-func (cmd *Command) SetLocation(loc *time.Location) {
-	cmd.ctx.loc = loc
+func (cmd *Command) Use(middleware MiddlewareFunc) {
+	fmt.Println("Middleware added")
+	cmd.middlewares = append(cmd.middlewares, middleware)
 }
 
 func (cmd *Command) parse() {
@@ -54,7 +56,10 @@ func (cmd *Command) parse() {
 		}
 		tag := ft.Tag.Get(tagName)
 		if tag == "" {
-			continue
+			tag = ft.Tag.Get(tagAlias)
+			if tag == "" {
+				continue
+			}
 		}
 		opt := newOption(f, ft, cmd.ctx)
 		cmd.opts = append(cmd.opts, opt)
@@ -119,8 +124,8 @@ func (cmd *Command) route(args []string) (int, error) {
 }
 
 func (cmd *Command) showReport(ctx *Context) {
-	subCmdTime := time.UnixMicro(cmd.ctx.subCmdFinish).Sub(time.UnixMicro(cmd.ctx.subCmdStart))
-	cmdTime := time.Since(time.UnixMicro(cmd.ctx.cmdStart))
+	subCmdTime := ctx.subCmdFinish.Sub(ctx.subCmdStart)
+	cmdTime := time.Since(ctx.cmdStart)
 	idx := -1
 	for k, v := range ctx.rawArgs {
 		if v == ctx.subCmd.Name {
@@ -138,11 +143,18 @@ func (cmd *Command) showReport(ctx *Context) {
 	buf.WriteString(fmt.Sprintf(" Options:    %v\n", strings.Join(gOpts, " ")))
 	buf.WriteString(fmt.Sprintf(" SubCommand: %v\n", ctx.subCmd.Name))
 	buf.WriteString(fmt.Sprintf(" SubOptions: %v\n", strings.Join(sOpts, " ")))
-	buf.WriteString(fmt.Sprintf(" DateTime:   %v\n", time.UnixMicro(cmd.ctx.cmdStart).In(cmd.ctx.loc)))
+	buf.WriteString(fmt.Sprintf(" DateTime:   %v\n", ctx.cmdStart.In(ctx.loc)))
 	buf.WriteString(fmt.Sprintf(" ExecTime:   %v\n", cmdTime))
 	buf.WriteString(fmt.Sprintf(" SubTime:    %v\n", subCmdTime))
 	buf.WriteString("------------------------------------------------------------\n")
 	println(buf.String())
+}
+
+func (cmd *Command) applyMiddleware(h HandlerFunc) HandlerFunc {
+	for i := len(cmd.middlewares) - 1; i >= 0; i-- {
+		h = cmd.middlewares[i](h)
+	}
+	return h
 }
 
 func (cmd *Command) Run() error {
@@ -194,9 +206,11 @@ func (cmd *Command) Run() error {
 	}
 
 	// Run
-	cmd.ctx.subCmdStart = time.Now().UnixMicro()
-	err = cmd.ctx.subCmd.cmd.Run(cmd.ctx)
-	cmd.ctx.subCmdFinish = time.Now().UnixMicro()
+	cmd.ctx.subCmdStart = time.Now().UTC()
+	fmt.Println("Applying Middlewares")
+	h := cmd.applyMiddleware(cmd.ctx.subCmd.cmd.Run)
+	err = h(cmd.ctx)
+	cmd.ctx.subCmdFinish = time.Now().UTC()
 
 	// Report
 	if cmd.report && subCmdName != helpCmdName {

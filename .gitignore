@@ -25,7 +25,9 @@ go.work.sum
 .env
 .fleet/
 
-# main directory
-main/*.go
-main/go.mod
-main/go.sum
+# command directory
+cmd/
+
+# middlewares directory
+middleware/go.mod
+middleware/go.sum

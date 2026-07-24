@@ -1,4 +1,4 @@
-package mmaco
+package bismarck
 
 import (
 	"fmt"
@@ -54,7 +54,7 @@ func TestCommandParse(t *testing.T) {
 func TestCommandAdd(t *testing.T) {
 	// Test Case
 	cases := []struct {
-		sc   SubCommandInterface
+		sc   SubCommand
 		name string
 	}{
 		{

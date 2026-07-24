@@ -1,4 +1,4 @@
-package mmaco
+package bismarck
 
 import (
 	"reflect"
@@ -19,7 +19,7 @@ func isSameSubCmd(aSt, bSt *SubCommand) bool {
 func TestNewSubCommand(t *testing.T) {
 	// Test Case
 	cases := []struct {
-		cmd SubCommandInterface
+		cmd SubCommand
 		st  *SubCommand
 	}{
 		{cmd: subCmd0{}, st: new(SubCommand)},
