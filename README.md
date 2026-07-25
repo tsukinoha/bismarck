@@ -18,7 +18,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/elfincafe/bismarck"
+	"github.com/tsukinoha/bismarck"
 )
 
 type (
