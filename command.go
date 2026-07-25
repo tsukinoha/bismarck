@@ -41,7 +41,6 @@ func New(name string) *Command {
 }
 
 func (cmd *Command) Use(middleware MiddlewareFunc) {
-	fmt.Println("Middleware added")
 	cmd.middlewares = append(cmd.middlewares, middleware)
 }
 
@@ -207,7 +206,6 @@ func (cmd *Command) Run() error {
 
 	// Run
 	cmd.ctx.subCmdStart = time.Now().UTC()
-	fmt.Println("Applying Middlewares")
 	h := cmd.applyMiddleware(cmd.ctx.subCmd.cmd.Run)
 	err = h(cmd.ctx)
 	cmd.ctx.subCmdFinish = time.Now().UTC()
