@@ -37,6 +37,7 @@ func newContext(cmdName string, rawArgs []string) *Context {
 		subCmdFinish: time.Unix(0, 0),
 		rawArgs:      rawArgs,
 		args:         []string{},
+		stores:       map[string]any{},
 	}
 }
 
